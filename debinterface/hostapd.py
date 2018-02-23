@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function, with_statement, absolute_import
 import os
 import shutil
-import toolutils
+
+from . import toolutils
 
 
 class Hostapd(object):
@@ -26,13 +28,16 @@ class Hostapd(object):
             self._config[str(key).strip()] = value
 
     def validate(self):
-        """
-            Not sure which ones are really necessary for everyone,
-            here are the ones I require
+        """Not sure which ones are really necessary for everyone,
+            here are the ones I require.
             I created 4 groups of keys : basic must always be there,
             wireless if you want to be an AP, auth if you want to add
             some security, bridge for, well, bridging
             Not foul proof !
+
+            Returns:
+                bool: True if everything went ok
+
             Raises:
                 KeyError : missing key
                 ValueError : invalid data
@@ -141,12 +146,13 @@ class Hostapd(object):
         self.backup()
 
         with toolutils.atomic_write(path) as hostapd:
-            for k, v in self._config.iteritems():
+            for k, v in self._config.items():
                 key = str(k).strip()
                 value = str(v).strip()
                 hostapd.write("{0}={1}\n".format(key, value))
 
-    def controlService(self, action):
+    @staticmethod
+    def controlService(action):
         """ return True/False, command output """
 
         if action not in ["start", "stop", "restart"]:

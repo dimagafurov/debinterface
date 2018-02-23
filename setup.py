@@ -18,7 +18,8 @@ def read(*parts):
 
 REQUIREMENTS = []
 
-VERSION = "3.0.0"
+# Remember to sync with debinterface.__init__ and docs/conf.py
+VERSION = "3.3.0"
 URL = 'https://github.com/nMustaki/debinterface'
 
 

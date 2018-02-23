@@ -1,11 +1,17 @@
 #!/bin/bash
+set -e
 
-# Only needed once
-# python setup.py register -r https://testpypi.python.org/pypi
-# python setup.py register -r https://pypi.python.org/pypi
+echo "Remember to update version in :"
+echo "    - debinterface/__init__.py"
+echo "    - setup.py"
 
 # Test
-python setup.py test
+py.test --cov=debinterface test
+
+# Cleanup
+rm -rf debinterface.egg-info
+rm -rf build
+rm -rf dist
 
 # check
 check-manifest -u -v
@@ -17,9 +23,3 @@ python setup.py bdist_wheel  # Not universal
 # Deploy with gpg
 twine upload dist/* -r pypitest --sign --skip-existing
 twine upload dist/* --sign
-
-# Deploy legacy version
-# Upload to test PyPi
-# python setup.py sdist upload -r https://testpypi.python.org/pypi
-# Upload to prod PyPi
-# python setup.py sdist upload
