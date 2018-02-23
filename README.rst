@@ -9,9 +9,14 @@ Debinterface
 This is a simple Python library for dealing with the /etc/network/interfaces file in most Debian based distributions.
 This is forked from https://github.com/dggreenbaum/debinterface to refactor it and maybe extends it with wpa_supplicant handling
 
+Complete documentation is on  `Read the docs <http://debinterface.readthedocs.io/en/latest/index.html>`_
+
 
 Example usage
 -------------
+
+You'll find way `more examples here <http://debinterface.readthedocs.io/en/latest/quickstart.html>`_
+
 
 .. sourcecode:: python
 
@@ -42,3 +47,12 @@ Example usage
     # By defaults, interfaces file is read when instanciating the Interfaces class, to do it lazyly:
     interfaces = debinterface.Interfaces(update_adapters=False)
     interfaces.updateAdapters()
+
+
+Run the tests
+-------------
+
+.. sourcecode:: shell
+
+    pip install -r requirements_dev.txt
+    py.test --cov=debinterface test

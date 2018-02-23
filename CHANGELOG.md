@@ -3,11 +3,56 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 From http://keepachangelog.com
 
-## [Unreleased][unreleased]
+## 3.3.0 - 2018-01-27
 ### Added
-### Changed
+- wpa-conf to adapter and reader/writer. (thanks @mikeodr)
+
 ### Fixed
-### Removed
+- parsing of options dict as 'bridge-opts' as this is the true attribute
+	 title when reading it back from 'attributes' accessor. (thanks @mikeodr)
+- existing parsing of set_options for dns-search. (thanks @mikeodr)
+
+
+## 3.2.1 - 2018-01-18
+### Fixed
+- Bug with new ability to add comments
+
+
+## 3.2.0 - 2018-01-18
+### Added
+- Ability to provide header comments (thanks @mikeodr)
+- Parsing of 'dns-search' (thanks @mikeodr)
+- Adding missing option 'bridge_maxwait' to interfaces writer. (thanks @mikeodr)
+
+### Fixed
+- Only one DNS IP was being read or written by the library. (thanks @Jude188)
+- Strict ordering of dns-search option after the dns-namerservers  (thanks @mikeodr)
+
+
+## 3.1.0 - 2017-03-01
+### Added
+- Docs to read the docs :-)
+- Class can be imported more easily as in the example : from debinterface import Interfaces
+- DeprecationWarning for hotplug key, will be changed to allow-hotplug in 4.0
+
+### Changed
+- PR from mchubby: chmod destination file to 0644
+- dnsmasqRange.rm_itf_range returns False is nothing was changed
+- Removed validation code from NetworkAdapter to its own class
+- Do not backup/restore if creating a new interfaces file
+
+### Fixed
+- shutil.copy is replaced by os.rename which is atomic
+- bad if/else
+- failing tests
+- NetworkAdapter : missing pre-down, post-up functions
+- ifup command was not an absolute path (thanks @ymolinet)
+
+
+## 3.0.1 - 2016-09-15
+### Fixed
+- wrong paramter to ifup, thanks dimagafurov
+
 
 ## 3.0 - 2016-08-15
 ### Changed

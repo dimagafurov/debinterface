@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function, with_statement, absolute_import
 import copy
 import os
 import shutil
-import socket
-import toolutils
+from socket import inet_aton
+
+from . import toolutils
 
 
 DEFAULT_CONFIG = {
@@ -67,12 +69,12 @@ class DnsmasqRange(object):
 
     def validate(self):
         try:
-            for r in self._config["dhcp-range"]:
-                required = ["interface", "start", "end", "lease_time"]
-                for k in required:
-                    if k not in r:
-                        raise ValueError("Missing option : {0}".format(k))
-                if socket.inet_aton(r["end"]) < socket.inet_aton(r["start"]):
+            required = ["interface", "start", "end", "lease_time"]
+            for rng in self._config["dhcp-range"]:
+                for key in required:
+                    if key not in rng:
+                        raise ValueError("Missing option : {0}".format(key))
+                if inet_aton(rng["end"]) < inet_aton(rng["start"]):
                     raise ValueError("Start IP range must be before end IP")
                 return True
             itf_names = [
@@ -80,20 +82,23 @@ class DnsmasqRange(object):
                 for data in self._config["dhcp-range"]
             ]
             if len(itf_names) != set(itf_names):
-                raise ValueError("Multiple interfaces with the same name")
+                msg = "Multiple interfaces with the same name"
+                raise ValueError(msg)
         except KeyError:
             pass  # dhcp-range is not mandatory
 
     def update_range(self, interface, start, end, lease_time):
         """Update existing range based on the interface name
-        If does not exist will be created
+            If does not exist will be created
+
             Args:
-                interface (string): interface name
-                start (string) : start ip of range
-                end (string) : end ip of range
-                lease_time (string) : lease_time
+                interface (str): interface name
+                start (str) : start ip of range
+                end (str) : end ip of range
+                lease_time (str) : lease_time
+
             Returns:
-                boolean : True if configuration was updated or created,
+                bool: True if configuration was updated or created,
                             False otherwise
         """
         current_range = self.get_itf_range(interface)
@@ -116,13 +121,24 @@ class DnsmasqRange(object):
                 return v
 
     def rm_itf_range(self, if_name):
-        """ Rm range info for the given if """
+        ''' Rm range info for the given interface
+
+            Args:
+                if_name (str) : interface name
+
+            Returns:
+                bool: True if configuration was updated, False otherwise
+        '''
 
         if "dhcp-range" in self._config:
+            current_len = len(self._config['dhcp-range'])
             self._config['dhcp-range'][:] = [
                 x for x in self._config['dhcp-range']
                 if x["interface"] != if_name
             ]
+            if len(self._config['dhcp-range']) < current_len:
+                return True
+        return False
 
     def set_defaults(self):
         """ Defaults for my needs, you should probably override this one """
@@ -153,7 +169,7 @@ class DnsmasqRange(object):
         self.backup()
 
         with toolutils.atomic_write(path) as dnsmasq:
-            for k, v in self._config.iteritems():
+            for k, v in self._config.items():
                 if k == "dhcp-range":
                     if not v:
                         continue
@@ -168,7 +184,8 @@ class DnsmasqRange(object):
                     value = str(v).strip()
                     dnsmasq.write("{0}={1}\n".format(key, value))
 
-    def controlService(self, action):
+    @staticmethod
+    def controlService(action):
         """ return True/False, command output """
 
         if action not in ["start", "stop", "restart"]:
@@ -200,7 +217,8 @@ class DnsmasqRange(object):
         if self.backup_path:
             os.remove(self._path)
 
-    def _extract_range_info(self, value):
+    @staticmethod
+    def _extract_range_info(value):
         ret = {}
         try:
             breaked = value.split(",")
@@ -208,7 +226,7 @@ class DnsmasqRange(object):
             ret["start"] = breaked[1]
             ret["end"] = breaked[2]
             ret["lease_time"] = breaked[3]
-        except:
+        except Exception:
             pass
         return ret
 
