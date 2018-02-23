@@ -85,7 +85,23 @@ class InterfacesReader(object):
             sline = [x.strip() for x in line.split()]
 
             if sline[0] == 'address':
-                self._adapters[self._context].setAddress(sline[1])
+                ip_mask = sline[1].split('/')
+                if len(ip_mask) == 1:
+                    self._adapters[self._context].setAddress(sline[1])
+                else:
+                    self._adapters[self._context].setAddress(ip_mask[0])
+
+                    cidr = int(ip_mask[1])
+                    mask = (0xffffffff >> (32 - cidr)) << (32 - cidr)
+                    netmask = str((0xff000000 & mask) >> 24) + '.' + \
+                              str((0x00ff0000 & mask) >> 16) + '.' + \
+                              str((0x0000ff00 & mask) >> 8) + '.' + \
+                              str((0x000000ff & mask))
+
+                    self._adapters[self._context].setNetmask(netmask)
+                    sline[0] = 'netmask'
+                    sline[1] = netmask
+
             elif sline[0] == 'netmask':
                 self._adapters[self._context].setNetmask(sline[1])
             elif sline[0] == 'gateway':
